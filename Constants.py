@@ -1,6 +1,6 @@
 #game constants
 
-class Colors:
+class colors:
 
     BLACK = (0,0,0)
     WHITE = (255,255,255)
@@ -8,3 +8,8 @@ class Colors:
     GREEN = (0,255,0)
     BLUE = (0,0,255)
     ORANGE = (255,165,0)
+
+
+class game:
+
+    GRAVITY = 9.8
