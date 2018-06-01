@@ -2,7 +2,6 @@ import pygame, os.path
 from pygame.locals import *
 
 import Constants
-import Images
 
 #draw the screen surface
 def draw_surface():
@@ -21,17 +20,17 @@ class Player(pygame.sprite.Sprite):
     #initialize the player
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-            
-    
-    #move player rect
+        
+        #TODO: Make this an argument to call in main rather than in the constructor
+        self.player_image = pygame.image.load('Data/testplayer.png')
+        self.player_rect = self.player_image.get_rect()z``
+
+    #move the player
     def move_player(self, x, y):
         
-        _, _, surface = draw_surface()
-        self.player_image = pygame.image.load('Data/testplayer.png')
-        self.player_rect = self.player_image.get_rect(topleft=(x, y))
-        self.move_player = surface.blit(self.player_image,self.player_rect)
+        self.player_rect.topleft = (x, y)
         
-        return self.move_player
+        
 
         
  #main function for calling other functions       
@@ -44,12 +43,14 @@ def main():
     pos_x = width / 3
     pos_y = 0
 
-    #load the player image
-    #image = pygame.image.load('Data/cat.png') ***
-
     #initialize clock variables
     clock = pygame.time.Clock()
+
+    #initialize the player
     player = Player()
+
+    #load player image
+    #player.__init__('Data/testplayer.png')
 
     all = pygame.sprite.RenderUpdates()
 
@@ -59,6 +60,8 @@ def main():
                 pygame.quit()
                 sys.exit()
 
+        #TEMPORARY: test rect for collision
+        pygame.draw.rect(surface, Constants.colors.GREEN, (100, 100, 200, 50))
 
         #keyboard inputs
         pressed = pygame.key.get_pressed()
@@ -67,9 +70,12 @@ def main():
         if pressed[K_d]:
             pos_x += 10
 
+        #detect collisions
+        
+
         #apply gravity
-        gravity = Constants.game.GRAVITY
-        pos_y += gravity
+        #gravity = Constants.game.GRAVITY
+        #pos_y += gravity
 
         #move the player
         player.move_player(pos_x, pos_y)
@@ -82,7 +88,8 @@ def main():
         display_fps = clock.get_fps()
         print(display_fps)
 
-        #sprite test code
+        #
+        surface.blit()
 
         #TODO: fix timestep
         #Cap the frame rate at 40 TEMPORARY
