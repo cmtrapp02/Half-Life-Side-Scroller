@@ -23,15 +23,17 @@ class Player(pygame.sprite.Sprite):
         
         #TODO: Make this an argument to call in main rather than in the constructor
         self.player_image = pygame.image.load('Data/testplayer.png')
-        self.player_rect = self.player_image.get_rect()z``
+        self.player_rect = self.player_image.get_rect()
+        self._, self._, self.surface = draw_surface()
+        
 
     #move the player
     def move_player(self, x, y):
         
-        self.player_rect.topleft = (x, y)
+        self.player_rect.x = x
+        self.player_rect.y = y
+        self.surface.blit(self.player_image, self.player_rect)
         
-        
-
         
  #main function for calling other functions       
 def main():
@@ -51,6 +53,7 @@ def main():
 
     #load player image
     #player.__init__('Data/testplayer.png')
+    
 
     all = pygame.sprite.RenderUpdates()
 
@@ -89,7 +92,7 @@ def main():
         print(display_fps)
 
         #
-        surface.blit()
+        
 
         #TODO: fix timestep
         #Cap the frame rate at 40 TEMPORARY
