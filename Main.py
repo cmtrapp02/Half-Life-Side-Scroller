@@ -13,7 +13,6 @@ def draw_surface():
 
     return screen_width, screen_height, surface
 
-
 #player class
 class Player(pygame.sprite.Sprite):
     
@@ -24,17 +23,27 @@ class Player(pygame.sprite.Sprite):
         #TODO: Make this an argument to call in main rather than in the constructor
         self.player_image = pygame.image.load('Data/testplayer.png')
         self.player_rect = self.player_image.get_rect()
-        self._, self._, self.surface = draw_surface()
         
-
     #move the player
     def move_player(self, x, y):
-        
+        _, _,surface = draw_surface()
         self.player_rect.x = x
         self.player_rect.y = y
-        self.surface.blit(self.player_image, self.player_rect)
+        surface.blit(self.player_image, self.player_rect)
         
         
+class Rects(pygame.sprite.Sprite):
+
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+
+        _, _, self.surface = draw_surface()
+        
+
+    def update(self, x, y):
+
+        self.rect = pygame.draw.rect(self.surface, Constants.colors.GREEN, (x, y, 100, 50))
+
  #main function for calling other functions       
 def main():
     #initialize pygame
@@ -42,14 +51,15 @@ def main():
 
     #initialize display variables
     width, height, surface = draw_surface()
-    pos_x = width / 3
+    pos_x = 0
     pos_y = 0
 
     #initialize clock variables
     clock = pygame.time.Clock()
 
-    #initialize the player
+    #initialize game classes
     player = Player()
+    test_rect = Rects()
 
     #load player image
     #player.__init__('Data/testplayer.png')
@@ -82,6 +92,9 @@ def main():
 
         #move the player
         player.move_player(pos_x, pos_y)
+
+        #object positions
+        test_rect.update(500, 0)
 
         #draw the scene
         dirty = all.draw(surface)
