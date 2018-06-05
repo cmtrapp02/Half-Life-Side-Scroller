@@ -84,7 +84,8 @@ def main():
             pos_x += 10
 
         #detect collisions
-        
+        if player.collide_rect():
+            print("collision detected!")
 
         #apply gravity
         #gravity = Constants.game.GRAVITY
@@ -102,7 +103,7 @@ def main():
 
         #output the fps to the commandline
         display_fps = clock.get_fps()
-        print(display_fps)
+        #print(display_fps)
 
         #
         
