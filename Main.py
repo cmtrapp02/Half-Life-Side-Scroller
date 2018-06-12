@@ -18,31 +18,33 @@ class Player(pygame.sprite.Sprite):
     
     #initialize the player
     def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
+        pygame.sprite.Sprite.__init__(self, self.containers)
         
         #TODO: Make this an argument to call in main rather than in the constructor
-        self.player_image = pygame.image.load('Data/testplayer.png')
-        self.player_rect = self.player_image.get_rect()
+        self.image = pygame.image.load('Data/testplayer.png')
+        self.rect = self.image.get_rect()
         
     #move the player
     def move_player(self, x, y):
         _, _,surface = draw_surface()
-        self.player_rect.x = x
-        self.player_rect.y = y
-        surface.blit(self.player_image, self.player_rect)
+        self.rect.x = x
+        self.rect.y = y
+        #surface.blit(self.image, self.rect)
         
         
 class Rects(pygame.sprite.Sprite):
 
     def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
+        pygame.sprite.Sprite.__init__(self, self.containers)
 
-        _, _, self.surface = draw_surface()
-        
+        self.image = pygame.image.load('Data/testrect.png')
+        self.rect = self.image.get_rect()
 
-    def update(self, x, y):
+    def update(self, pos_x, pos_y):
 
-        self.rect = pygame.draw.rect(self.surface, Constants.colors.GREEN, (x, y, 100, 50))
+        _, _, surface = draw_surface()
+        self.rect.x = pos_x
+        self.rect.y = pos_y
 
  #main function for calling other functions       
 def main():
@@ -60,12 +62,13 @@ def main():
     #initialize game classes
     player = Player()
     test_rect = Rects()
-
-    #load player image
-    #player.__init__('Data/testplayer.png')
     
 
     all = pygame.sprite.RenderUpdates()
+
+    #assign default group to each class
+    Player.containers = all
+    Rects.containers = all
 
     while True:
         for event in pygame.event.get():
@@ -84,22 +87,25 @@ def main():
             pos_x += 10
 
         #detect collisions
-        if player.collide_rect():
-            print("collision detected!")
+        #sprite_collide = pygame.sprite.collide_rect(player.rect, test_rect.rect)
+        
+        #for block in sprite_collide:
+            #print("Collision Detected!")
 
         #apply gravity
         #gravity = Constants.game.GRAVITY
         #pos_y += gravity
 
-        #move the player
         player.move_player(pos_x, pos_y)
+        #move the player
 
         #object positions
-        test_rect.update(500, 0)
+        #test_rect.update(500, 0)
+        #group.draw(surface)
 
         #draw the scene
         dirty = all.draw(surface)
-        pygame.display.update()
+        pygame.display.update(dirty)
 
         #output the fps to the commandline
         display_fps = clock.get_fps()
