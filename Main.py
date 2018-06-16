@@ -6,8 +6,8 @@ import Constants
 #draw the screen surface
 def draw_surface():
 
-    screen_width = 1600
-    screen_height = 1400
+    screen_width = 1024
+    screen_height = 768
     surface = pygame.display.set_mode((screen_width, screen_height))
 
     return screen_width, screen_height, surface
@@ -55,8 +55,8 @@ def main():
 
     #initialize display variables
     width, height, surface = draw_surface()
-    pos_x = 0
-    pos_y = 0
+    pos_x = width
+    pos_y = height
     fill_screen = surface.fill(Constants.colors.BLUE)
 
     #initialize clock variables
@@ -64,33 +64,30 @@ def main():
 
     #game images
     player_image = 'Data/testplayer.png'
-    rect_image = 'Data/testrect.png'
+    rect_image = 'Data/glaucousbluerect.png'
     background_image = 'Data/testbackground.png'
+    ground_image = 'Data/testrectground.png'
     
     #initialize game classes
     player = Player(player_image)
     test_rect = Rects(rect_image)
     test_background = Rects(background_image)
+    test_ground = Rects(ground_image)
 
     #update the rect locations
-    test_rect.update(100, 0)
-    test_background.update(pos_x / 2, pos_y / 2)
+    test_rect.update(100, pos_y - 400)
+    test_background.update(0, 0)
+    test_ground.update(0, pos_y - 200)
 
     #sprite groups
     player_group = pygame.sprite.Group(player)
-    blocking_group = pygame.sprite.Group(test_rect)
+    blocking_group = pygame.sprite.Group(test_rect, test_ground)
     background_group = pygame.sprite.Group(test_background)
 
     #sprite layers
     layer_player = pygame.sprite.LayeredUpdates().get_layer_of_sprite(player)
     layer_rect = pygame.sprite.LayeredUpdates().get_layer_of_sprite(test_rect)
     layer_background = pygame.sprite.LayeredUpdates().get_layer_of_sprite(test_background)
-
-    print('player layer: ' + str(layer_player))
-    print('rect layer: ' + str(layer_rect))
-    print('layer_background: ' + str(layer_background))
-
-    #pygame.sprite.LayeredUpdates().move_to_front(player)
     
     all = pygame.sprite.RenderUpdates(background_group, blocking_group, player_group)
 
@@ -99,12 +96,6 @@ def main():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-
-        #clear all sprites
-        #all.clear(surface, background_image)
-    
-        #update all sprites
-        #all.update()
 
         #keyboard inputs
         pressed = pygame.key.get_pressed()
@@ -124,14 +115,7 @@ def main():
         #pos_y += gravity
         
         #load the player image and move the player
-        player.move_player(pos_x, pos_y)
-        
-        #load rects and their 
-        
-
-        #object positions
-        #test_rect.update(500, 0)
-        #group.draw(surface)
+        player.move_player(pos_x / 2, pos_y - 275)
 
         #draw the scene
         dirty = all.draw(surface)
@@ -140,9 +124,6 @@ def main():
         #output the fps to the commandline
         display_fps = clock.get_fps()
         #print(display_fps)
-
-        #
-        
 
         #TODO: fix timestep
         #Cap the frame rate at 40 TEMPORARY
