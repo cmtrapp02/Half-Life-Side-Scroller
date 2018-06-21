@@ -1,3 +1,6 @@
+import pygame
+from pygame.locals import *
+
 #game constants
 
 class colors:
@@ -13,4 +16,4 @@ class colors:
 class game:
 
     GRAVITY = 9.8
-    SCREENRECT = Rect(0, 0, 1024, 786)
+    SCREENRECT = Rect(0, 0, 600, 400)

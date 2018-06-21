@@ -6,18 +6,20 @@ import constants
 #player class
 class Player(pygame.sprite.Sprite):
     
+    speed = 5
     #initialize the player
     def __init__(self, img):
         pygame.sprite.Sprite.__init__(self)
         
         self.i = img
         self.image = pygame.image.load(self.i)
-        self.rect = self.image.get_rect(midbottom=constants.SCREENRECT.midbottom)
+        self.rect = self.image.get_rect(midbottom=constants.game.SCREENRECT.midbottom)
 
     #move the player
     def move_player(self, x, y):
         
-        self.rect.move_ip(x, y)
+        self.rect.x = x
+        self.rect.y = y
         #surface.blit(self.image, self.rect)
         
         
@@ -37,12 +39,14 @@ class Rects(pygame.sprite.Sprite):
         self.rect.y = y
 
  #main function for calling other functions       
-def main():
+def main(winstyle = 0):
     #initialize pygame
     pygame.init()
 
     #initialize display variables
-    surface = pygame.display.set_mode(constants.game.SCREENRECT.size)
+    winstyle = 0 # toggle fullscreen
+    surface = pygame.display.set_mode(constants.game.SCREENRECT.size, winstyle)
+    surface.fill(constants.colors.BLUE)
 
     #initialize clock variables
     clock = pygame.time.Clock()
@@ -59,10 +63,14 @@ def main():
     test_background = Rects(background_image)
     test_ground = Rects(ground_image)
 
+    #initialize movement variables
+    pos_x = 0
+    pos_y = 0
+
     #update the rect locations
-    test_rect.update(100, pos_y - 400)
+    test_rect.update(100, 0)
     test_background.update(0, 0)
-    test_ground.update(0, pos_y - 200)
+    test_ground.update(0, 300)
 
     #sprite groups
     player_group = pygame.sprite.Group(player)
@@ -90,9 +98,9 @@ def main():
             pos_x += 10
 
         #detect collisions
-        sprite_collide = pygame.sprite.groupcollide(player_group, blocking_group, False, False)
+        sprite_collide = pygame.sprite.spritecollideany(player, blocking_group,)
         
-        for block in sprite_collide:
+        if sprite_collide:
             print("Collision detected")
 
         #TODO: apply gravity
@@ -100,7 +108,7 @@ def main():
         #pos_y += gravity
         
         #load the player image and move the player
-        player.move_player(pos_x / 2, pos_y - 274)
+        player.move_player(pos_x, pos_y)
 
         #draw the scene
         dirty = all.draw(surface)
@@ -112,7 +120,7 @@ def main():
 
         #TODO: fix timestep
         #Cap the frame rate at 40 TEMPORARY
-        clock.tick(100)
+        clock.tick(40)
         
         
 
