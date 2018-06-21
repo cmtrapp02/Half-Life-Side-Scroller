@@ -14,13 +14,14 @@ class Player(pygame.sprite.Sprite):
         self.i = img
         self.image = pygame.image.load(self.i)
         self.rect = self.image.get_rect(midbottom=constants.game.SCREENRECT.midbottom)
+        self.facing = 1
 
     #move the player
-    def move_player(self, x, y):
+    def move(self, direction):
         
-        self.rect.x = x
-        self.rect.y = y
-        #surface.blit(self.image, self.rect)
+        self.facing = direction
+        self.rect.move_ip(direction * self.speed, 0)
+        self.rect.top = 225
         
         
 class Rects(pygame.sprite.Sprite):
@@ -44,9 +45,10 @@ def main(winstyle = 0):
     pygame.init()
 
     #initialize display variables
-    winstyle = 0 # toggle fullscreen
+    winstyle = 1 # toggle fullscreen
     surface = pygame.display.set_mode(constants.game.SCREENRECT.size, winstyle)
     surface.fill(constants.colors.BLUE)
+    pygame.display.flip()
 
     #initialize clock variables
     clock = pygame.time.Clock()
@@ -62,10 +64,6 @@ def main(winstyle = 0):
     test_rect = Rects(rect_image)
     test_background = Rects(background_image)
     test_ground = Rects(ground_image)
-
-    #initialize movement variables
-    pos_x = 0
-    pos_y = 0
 
     #update the rect locations
     test_rect.update(100, 0)
@@ -90,25 +88,26 @@ def main(winstyle = 0):
                 pygame.quit()
                 sys.exit()
 
-        #keyboard inputs
+        
+        #handle player inputs
         pressed = pygame.key.get_pressed()
+        direction = 0
         if pressed[K_a]:
-            pos_x += -10
+            direction += -1
         if pressed[K_d]:
-            pos_x += 10
+            direction += 1
+        player.move(direction)
 
         #detect collisions
         sprite_collide = pygame.sprite.spritecollideany(player, blocking_group,)
-        
         if sprite_collide:
             print("Collision detected")
+        else:
+            print(" ")
 
         #TODO: apply gravity
         #gravity = Constants.game.GRAVITY
         #pos_y += gravity
-        
-        #load the player image and move the player
-        player.move_player(pos_x, pos_y)
 
         #draw the scene
         dirty = all.draw(surface)
