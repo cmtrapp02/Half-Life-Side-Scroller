@@ -14,6 +14,7 @@ class Player(pygame.sprite.Sprite):
         self.i = img
         self.image = pygame.image.load(self.i)
         self.rect = self.image.get_rect(midbottom=constants.game.SCREENRECT.midbottom)
+        self.mask = get_mask_surface(self.image)
         self.facing = 1
 
     #move the player
@@ -32,12 +33,16 @@ class Rects(pygame.sprite.Sprite):
         self.i = img
         self.image = pygame.image.load(self.i)
         self.rect = self.image.get_rect()
-
+        self.mask = pygame.mask.from_surface(self.image)
 
     def update(self, x, y):
 
         self.rect.x = x
         self.rect.y = y
+
+def get_mask_surface(surface, threshold = 127):
+
+    mask = pygame.mask.from_surface(surface.get_size())
 
  #main function for calling other functions       
 def main(winstyle = 0):
@@ -54,8 +59,8 @@ def main(winstyle = 0):
     clock = pygame.time.Clock()
 
     #game images
-    player_image = 'Data/testplayer.png'
-    rect_image = 'Data/glaucousbluerect.png'
+    player_image = 'Data/redtestrect.png'
+    rect_image = 'Data/screentestrect.png'
     background_image = 'Data/testbackground.png'
     ground_image = 'Data/testrectground.png'
     
@@ -79,6 +84,16 @@ def main(winstyle = 0):
     layer_player = pygame.sprite.LayeredUpdates().get_layer_of_sprite(player)
     layer_rect = pygame.sprite.LayeredUpdates().get_layer_of_sprite(test_rect)
     layer_background = pygame.sprite.LayeredUpdates().get_layer_of_sprite(test_background)
+
+    #load the sprite masks for collision
+    #x = player.image.get_width()
+    #y = player.image.get_height()
+    #test_mask = player.mask.get_size()
+    #test_mask1 = test_rect.mask.get_size() 
+
+
+    #TEMPORARY: used for offset within masks
+    
     
     all = pygame.sprite.RenderUpdates(background_group, blocking_group, player_group)
 
@@ -88,22 +103,32 @@ def main(winstyle = 0):
                 pygame.quit()
                 sys.exit()
 
-        
-        #handle player inputs
+        #handle player inputs and collision
         pressed = pygame.key.get_pressed()
+        #sprite_collide = pygame.sprite.spritecollideany(player, blocking_group)
+    
         direction = 0
         if pressed[K_a]:
             direction += -1
         if pressed[K_d]:
             direction += 1
+        
         player.move(direction)
 
-        #detect collisions
-        sprite_collide = pygame.sprite.spritecollideany(player, blocking_group,)
-        if sprite_collide:
-            print("Collision detected")
-        else:
-            print(" ")
+        #testing collision mask
+        #test_rect.mask.set_at((0, 0))
+        #player.mask.set_at((0, 0))
+
+        get_size = player.mask.get_size()
+        get_at = player.mask.get_at((0,0))
+        set_at = player.mask.set_at((0,0))
+        overlap_area = player.mask.overlap_area(test_rect.mask, (25, 12))
+        print('get at: ' + str(get_at))
+        print('overlapt area: ' + str(overlap_area))
+
+        callback = pygame.sprite.collide_mask(player, test_rect)
+        sprite_collide = pygame.sprite.spritecollide(player, blocking_group, False, callback)
+        print('callback: ' + str(callback))
 
         #TODO: apply gravity
         #gravity = Constants.game.GRAVITY
