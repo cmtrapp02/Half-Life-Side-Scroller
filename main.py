@@ -14,7 +14,7 @@ class Player(pygame.sprite.Sprite):
         self.i = img
         self.image = pygame.image.load(self.i)
         self.rect = self.image.get_rect(midbottom=constants.game.SCREENRECT.midbottom)
-        self.mask = get_mask_surface(self.image)
+        self.mask = pygame.mask.from_surface(self.image)
         self.facing = 1
 
     #move the player
@@ -22,7 +22,11 @@ class Player(pygame.sprite.Sprite):
         
         self.facing = direction
         self.rect.move_ip(direction * self.speed, 0)
-        self.rect.top = 225
+        self.rect.top = 100
+
+    #draw the sprite
+    def draw():
+        pygame.Surface.blit(self.image, self.rect)
         
         
 class Rects(pygame.sprite.Sprite):
@@ -40,9 +44,8 @@ class Rects(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-def get_mask_surface(surface, threshold = 127):
-
-    mask = pygame.mask.from_surface(surface.get_size())
+    def draw():
+        pygame.Surface.blit(self.image, self.rect)
 
  #main function for calling other functions       
 def main(winstyle = 0):
@@ -51,7 +54,7 @@ def main(winstyle = 0):
 
     #initialize display variables
     winstyle = 1 # toggle fullscreen
-    surface = pygame.display.set_mode(constants.game.SCREENRECT.size, winstyle)
+    surface = pygame.display.set_mode(constants.game.SCREENRECT.size, pygame.SRCALPHA)
     surface.fill(constants.colors.BLUE)
     pygame.display.flip()
 
@@ -59,19 +62,22 @@ def main(winstyle = 0):
     clock = pygame.time.Clock()
 
     #game images
-    player_image = 'Data/redtestrect.png'
-    rect_image = 'Data/screentestrect.png'
+    player_image = 'Data/testplayer.png'
+    rect_image = 'Data/testplayer.png'
+    rect_image2 = 'Data/glaucousbluerect.png'
     background_image = 'Data/testbackground.png'
     ground_image = 'Data/testrectground.png'
     
     #initialize game classes
     player = Player(player_image)
     test_rect = Rects(rect_image)
+    test_rect2 = Rects(rect_image2)
     test_background = Rects(background_image)
     test_ground = Rects(ground_image)
 
     #update the rect locations
-    test_rect.update(100, 0)
+    test_rect.update(100, 100)
+    test_rect.update(400, 100)
     test_background.update(0, 0)
     test_ground.update(0, 300)
 
@@ -94,7 +100,6 @@ def main(winstyle = 0):
 
     #TEMPORARY: used for offset within masks
     
-    
     all = pygame.sprite.RenderUpdates(background_group, blocking_group, player_group)
 
     while True:
@@ -115,20 +120,21 @@ def main(winstyle = 0):
         
         player.move(direction)
 
-        #testing collision mask
-        #test_rect.mask.set_at((0, 0))
-        #player.mask.set_at((0, 0))
-
         get_size = player.mask.get_size()
         get_at = player.mask.get_at((0,0))
         set_at = player.mask.set_at((0,0))
-        overlap_area = player.mask.overlap_area(test_rect.mask, (25, 12))
-        print('get at: ' + str(get_at))
-        print('overlapt area: ' + str(overlap_area))
+        
+        offset_x = player.rect[0] - test_rect.rect[0]
+        offset_y = player.rect[1] - test_rect.rect[1]
+        
+        overlap = player.mask.overlap(test_rect.mask, (offset_x, offset_y))
+        #if overlap:
+            #print('Collide')
 
-        callback = pygame.sprite.collide_mask(player, test_rect)
-        sprite_collide = pygame.sprite.spritecollide(player, blocking_group, False, callback)
-        print('callback: ' + str(callback))
+        overlap_area = player.mask.overlap_area(test_rect.mask, (offset_x, offset_y))
+        
+        if overlap_area:
+            print('overlap!')
 
         #TODO: apply gravity
         #gravity = Constants.game.GRAVITY
