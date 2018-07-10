@@ -18,15 +18,11 @@ class Player(pygame.sprite.Sprite):
         self.facing = 1
 
     #move the player
-    def move(self, direction):
+    def move(self, direction, pos_y):
         
         self.facing = direction
-        self.rect.move_ip(direction * self.speed, 0)
-        self.rect.top = 100
-
-    #draw the sprite
-    def draw():
-        pygame.Surface.blit(self.image, self.rect)
+        self.rect.move_ip(direction * self.speed, pos_y * self.speed)
+        #self.rect.top = 100
         
         
 class Rects(pygame.sprite.Sprite):
@@ -68,12 +64,14 @@ def detect_collision(player, blocking_group, sprites):
                         return 1
                     if offset_x <= -1:
                         return -1
+                    print(overlap_area)
 
 def player_input(player, collision):
 
     pressed = pygame.key.get_pressed()
     
     direction = 0
+    pos_y = 0
     if pressed[K_a]:
         direction += -1
         if collision == 1:
@@ -82,8 +80,18 @@ def player_input(player, collision):
         direction += 1
         if collision == -1:
             direction = 0
+    if pressed[K_w]:
+        pos_y += -1
+    if pressed[K_s]:
+        pos_y += 1
 
-    player.move(direction)
+    player.move(direction, pos_y)
+
+def apply_gravity(pos_y):
+
+    #TODO: apply gravity
+    gravity = constants.game.GRAVITY
+    pos_y += gravity
 
  #main function for calling other functions       
 def main(winstyle = 0):
@@ -129,15 +137,6 @@ def main(winstyle = 0):
     layer_rect = pygame.sprite.LayeredUpdates().get_layer_of_sprite(test_rect)
     layer_background = pygame.sprite.LayeredUpdates().get_layer_of_sprite(test_background)
 
-    #load the sprite masks for collision
-    #x = player.image.get_width()
-    #y = player.image.get_height()
-    #test_mask = player.mask.get_size()
-    #test_mask1 = test_rect.mask.get_size() 
-
-
-    #TEMPORARY: used for offset within masks
-    
     all = pygame.sprite.RenderUpdates(background_group, blocking_group, player_group)
 
     while True:
@@ -146,21 +145,15 @@ def main(winstyle = 0):
                 pygame.quit()
                 sys.exit()
 
-        
-
         get_size = player.mask.get_size()
         get_at = player.mask.get_at((0,0))
         set_at = player.mask.set_at((0,0))
         
-        sprites = [test_rect2, test_rect]
+        sprites = [test_ground, test_rect, test_rect2]
         collision = detect_collision(player, blocking_group, sprites)
 
         #handle player inputs and collision
         player_input(player, collision)
-
-        #TODO: apply gravity
-        #gravity = Constants.game.GRAVITY
-        #pos_y += gravity
 
         #draw the scene
         dirty = all.draw(surface)
