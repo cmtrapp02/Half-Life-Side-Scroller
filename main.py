@@ -59,9 +59,31 @@ def detect_collision(player, blocking_group, sprites):
                 offset_x = player.rect[0] - sprites[index].rect[0]
                 offset_y = player.rect[1] - sprites[index].rect[1]
 
-                if player.mask.overlap_area(sprites[index].mask, (offset_x, offset_y)):
-                    print('mask overlap detected!')
+                overlap_area = player.mask.overlap_area(sprites[index].mask, (offset_x, offset_y))
+
+                if overlap_area:
                     index += 1
+
+                    if offset_x >= 1:
+                        return 1
+                    if offset_x <= -1:
+                        return -1
+
+def player_input(player, collision):
+
+    pressed = pygame.key.get_pressed()
+    
+    direction = 0
+    if pressed[K_a]:
+        direction += -1
+        if collision == 1:
+            direction = 0
+    if pressed[K_d]:
+        direction += 1
+        if collision == -1:
+            direction = 0
+
+    player.move(direction)
 
  #main function for calling other functions       
 def main(winstyle = 0):
@@ -79,8 +101,8 @@ def main(winstyle = 0):
 
     #game images
     player_image = 'Data/testplayer.png'
-    rect_image = 'Data/testplayer.png'
-    rect_image2 = 'Data/testplayer.png'
+    rect_image = 'Data/bluetestrect.png'
+    rect_image2 = 'Data/redtestrect.png'
     background_image = 'Data/testbackground.png'
     ground_image = 'Data/testrectground.png'
     
@@ -124,24 +146,17 @@ def main(winstyle = 0):
                 pygame.quit()
                 sys.exit()
 
-        #handle player inputs and collision
-        pressed = pygame.key.get_pressed()
-        #sprite_collide = pygame.sprite.spritecollideany(player, blocking_group)
-    
-        direction = 0
-        if pressed[K_a]:
-            direction += -1
-        if pressed[K_d]:
-            direction += 1
         
-        player.move(direction)
 
         get_size = player.mask.get_size()
         get_at = player.mask.get_at((0,0))
         set_at = player.mask.set_at((0,0))
         
         sprites = [test_rect2, test_rect]
-        detect_collision(player, blocking_group, sprites)
+        collision = detect_collision(player, blocking_group, sprites)
+
+        #handle player inputs and collision
+        player_input(player, collision)
 
         #TODO: apply gravity
         #gravity = Constants.game.GRAVITY
