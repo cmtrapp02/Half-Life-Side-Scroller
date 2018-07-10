@@ -47,6 +47,22 @@ class Rects(pygame.sprite.Sprite):
     def draw():
         pygame.Surface.blit(self.image, self.rect)
 
+
+def detect_collision(player, blocking_group, sprites):
+
+    sprite_collide = pygame.sprite.spritecollide(player, blocking_group, False)
+    if sprite_collide:
+
+            index = 0
+            for index in range(0, len(sprites)):
+
+                offset_x = player.rect[0] - sprites[index].rect[0]
+                offset_y = player.rect[1] - sprites[index].rect[1]
+
+                if player.mask.overlap_area(sprites[index].mask, (offset_x, offset_y)):
+                    print('mask overlap detected!')
+                    index += 1
+
  #main function for calling other functions       
 def main(winstyle = 0):
     #initialize pygame
@@ -64,7 +80,7 @@ def main(winstyle = 0):
     #game images
     player_image = 'Data/testplayer.png'
     rect_image = 'Data/testplayer.png'
-    rect_image2 = 'Data/glaucousbluerect.png'
+    rect_image2 = 'Data/testplayer.png'
     background_image = 'Data/testbackground.png'
     ground_image = 'Data/testrectground.png'
     
@@ -77,13 +93,13 @@ def main(winstyle = 0):
 
     #update the rect locations
     test_rect.update(100, 100)
-    test_rect.update(400, 100)
+    test_rect2.update(400, 100)
     test_background.update(0, 0)
     test_ground.update(0, 300)
 
     #sprite groups
     player_group = pygame.sprite.Group(player)
-    blocking_group = pygame.sprite.Group(test_rect, test_ground)
+    blocking_group = pygame.sprite.Group(test_rect, test_rect2, test_ground)
     background_group = pygame.sprite.Group(test_background)
 
     #sprite layers
@@ -124,17 +140,8 @@ def main(winstyle = 0):
         get_at = player.mask.get_at((0,0))
         set_at = player.mask.set_at((0,0))
         
-        offset_x = player.rect[0] - test_rect.rect[0]
-        offset_y = player.rect[1] - test_rect.rect[1]
-        
-        overlap = player.mask.overlap(test_rect.mask, (offset_x, offset_y))
-        #if overlap:
-            #print('Collide')
-
-        overlap_area = player.mask.overlap_area(test_rect.mask, (offset_x, offset_y))
-        
-        if overlap_area:
-            print('overlap!')
+        sprites = [test_rect2, test_rect]
+        detect_collision(player, blocking_group, sprites)
 
         #TODO: apply gravity
         #gravity = Constants.game.GRAVITY
