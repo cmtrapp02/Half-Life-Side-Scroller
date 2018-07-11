@@ -13,8 +13,8 @@ class Player(pygame.sprite.Sprite):
         
         self.i = img
         self.image = pygame.image.load(self.i)
-        self.rect = self.image.get_rect(midbottom=constants.game.SCREENRECT.midbottom)
         self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
         self.facing = 1
 
     #move the player
@@ -32,16 +32,14 @@ class Rects(pygame.sprite.Sprite):
 
         self.i = img
         self.image = pygame.image.load(self.i)
-        self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        
 
     def update(self, x, y):
 
         self.rect.x = x
         self.rect.y = y
-
-    def draw():
-        pygame.Surface.blit(self.image, self.rect)
 
 
 def detect_collision(player, blocking_group, sprites):
@@ -64,7 +62,11 @@ def detect_collision(player, blocking_group, sprites):
                         return 1
                     if offset_x <= -1:
                         return -1
-                    print(overlap_area)
+                    if offset_y >= 1:
+                        print(offset_y)
+                    if offset_y <= -1:
+                        print(offset_y)
+
 
 def player_input(player, collision):
 
@@ -87,6 +89,7 @@ def player_input(player, collision):
 
     player.move(direction, pos_y)
 
+
 def apply_gravity(pos_y):
 
     #TODO: apply gravity
@@ -108,34 +111,42 @@ def main(winstyle = 0):
     clock = pygame.time.Clock()
 
     #game images
-    player_image = 'Data/testplayer.png'
-    rect_image = 'Data/bluetestrect.png'
-    rect_image2 = 'Data/redtestrect.png'
-    background_image = 'Data/testbackground.png'
-    ground_image = 'Data/testrectground.png'
+    player_image = 'data/testplayer.png'
+    rect_image = 'data/bluetestrect.png'
+    rect_image2 = 'data/redtestrect.png'
+    rect_image3 = 'data/glaucousbluerect.png'
+    background_image = 'data/testbackground.png'
+    ground_image = 'data/testrectground.png'
     
     #initialize game classes
     player = Player(player_image)
-    test_rect = Rects(rect_image)
-    test_rect2 = Rects(rect_image2)
+    #test_rect = Rects(rect_image)
+    #test_rect2 = Rects(rect_image2)
+    test_rect3 = Rects(rect_image3)
     test_background = Rects(background_image)
     test_ground = Rects(ground_image)
 
     #update the rect locations
-    test_rect.update(100, 100)
-    test_rect2.update(400, 100)
+    #test_rect.update(100, 225)
+    #test_rect2.update(400, 225)
+    test_rect3.update(200, 100)
     test_background.update(0, 0)
     test_ground.update(0, 300)
 
     #sprite groups
     player_group = pygame.sprite.Group(player)
-    blocking_group = pygame.sprite.Group(test_rect, test_rect2, test_ground)
+    blocking_group = pygame.sprite.Group(test_rect3)
     background_group = pygame.sprite.Group(test_background)
 
     #sprite layers
-    layer_player = pygame.sprite.LayeredUpdates().get_layer_of_sprite(player)
-    layer_rect = pygame.sprite.LayeredUpdates().get_layer_of_sprite(test_rect)
-    layer_background = pygame.sprite.LayeredUpdates().get_layer_of_sprite(test_background)
+    #layer_player = pygame.sprite.LayeredUpdates().get_layer_of_sprite(player)
+    #layer_rect = pygame.sprite.LayeredUpdates().get_layer_of_sprite(test_rect)
+    #layer_background = pygame.sprite.LayeredUpdates().get_layer_of_sprite(test_background)
+
+    print(player.mask.get_size())
+    print(test_rect3.mask.get_size())
+
+    iii = 0
 
     all = pygame.sprite.RenderUpdates(background_group, blocking_group, player_group)
 
@@ -149,10 +160,14 @@ def main(winstyle = 0):
         get_at = player.mask.get_at((0,0))
         set_at = player.mask.set_at((0,0))
         
-        sprites = [test_ground, test_rect, test_rect2]
-        collision = detect_collision(player, blocking_group, sprites)
+        sprites = [test_rect3]
 
+        if player.rect.colliderect(test_rect3.rect):
+            print('collision' + str(iii))
+            iii += 1
+        
         #handle player inputs and collision
+        collision = detect_collision(player, blocking_group, sprites)
         player_input(player, collision)
 
         #draw the scene
