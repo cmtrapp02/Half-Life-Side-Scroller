@@ -6,11 +6,12 @@ import constants
 #player class
 class Player(pygame.sprite.Sprite):
     
-    speed = 5
+
     #initialize the player
     def __init__(self, img):
         pygame.sprite.Sprite.__init__(self)
         
+        self.speed = 5
         self.i = img
         self.image = pygame.image.load(self.i)
         self.rect = self.image.get_rect()
@@ -55,21 +56,24 @@ def collision_normal(left_mask, right_mask, left_pos, right_pos):
     
     offset = list(map(int, vsub(left_pos, right_pos)))
 
-    overlap = leftmask.overlap_area(right_mask, offset)
+    overlap = left_mask.mask.overlap_area(right_mask.mask, offset)
 
     if overlap == 0:
         return
     
     """Calculate collision normal"""
     
-    nx = (left_mask.overlap_area(right_mask,(offset[0]+1,offset[1])) -
-          left_mask.overlap_area(right_mask,(offset[0]-1,offset[1])))
-    ny = (left_mask.overlap_area(right_mask,(offset[0],offset[1]+1)) -
-          left_mask.overlap_area(right_mask,(offset[0],offset[1]-1)))
+    nx = (left_mask.mask.overlap_area(right_mask.mask,(offset[0]+1,offset[1])) -
+          left_mask.mask.overlap_area(right_mask.mask,(offset[0]-1,offset[1])))
+    ny = (left_mask.mask.overlap_area(right_mask.mask,(offset[0],offset[1]+1)) -
+          left_mask.mask.overlap_area(right_mask.mask,(offset[0],offset[1]-1)))
     if nx == 0 and ny == 0:
         """One sprite is inside another"""
-        return
+        return None, overlap
 
+    n = [nx, ny]
+
+    return n, overlap
 
 def detect_collision(player, blocking_group, sprites):
 
@@ -81,11 +85,12 @@ def detect_collision(player, blocking_group, sprites):
 
                 offset_x = player.rect[0] - sprites[index].rect[0]
                 offset_y = player.rect[1] - sprites[index].rect[1]
+                pos_x = player.rect
+                pos_y = player.rect
 
-                normal = collision_normal(player, sprites[index], offset_x, offset_y)
+                normal = collision_normal(player, sprites[index], pos_x, pos_y)
                 
-                if normal:
-                    print('collision normal detected!')
+                
                     
 
 def player_input(player, collision):
