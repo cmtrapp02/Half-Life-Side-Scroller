@@ -12,6 +12,7 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         
         self.speed = 5
+        self.vel = ([5,5])
         self.i = img
         self.image = pygame.image.load(self.i)
         self.rect = self.image.get_rect()
@@ -30,7 +31,7 @@ class Rects(pygame.sprite.Sprite):
 
     def __init__(self, img):
         pygame.sprite.Sprite.__init__(self)
-
+        self.test = ([1,1])
         self.i = img
         self.image = pygame.image.load(self.i)
         self.rect = self.image.get_rect()
@@ -43,16 +44,19 @@ class Rects(pygame.sprite.Sprite):
         self.rect.y = y
 
 
+def vadd(x, y):
+    return [x[0]+y[0],x[1]+y[1]]
+
+def vsub(x, y):
+    return [x[0]-y[0],x[1]-y[1]]
+
+def vdot(x, y):
+    return [x[0]*y[0]+x[1]*y[1]]
+
+
 def collision_normal(left_mask, right_mask, left_pos, right_pos):
 
-    def vadd(x, y):
-        return [x[0]+y[0],x[1]+y[1]]
-
-    def vsub(x, y):
-        return [x[0]-y[0],x[1]-y[1]]
-
-    def vdot(x, y):
-        return [x[0]*y[0]+x[1]*y[1]]
+    
     
     offset = list(map(int, vsub(left_pos, right_pos)))
 
@@ -68,12 +72,18 @@ def collision_normal(left_mask, right_mask, left_pos, right_pos):
     ny = (left_mask.mask.overlap_area(right_mask.mask,(offset[0],offset[1]+1)) -
           left_mask.mask.overlap_area(right_mask.mask,(offset[0],offset[1]-1)))
     if nx == 0 and ny == 0:
-        """One sprite is inside another"""
+        print('overlap')
         return None, overlap
 
     n = [nx, ny]
 
-    return n, overlap
+    test = []
+    dv = test.append(vsub(right_mask.test, left_mask.vel))
+    J = vdot(dv,n)/(2*vdot(n,n))
+
+    print(J)
+
+    return n
 
 def detect_collision(player, blocking_group, sprites):
 
@@ -82,17 +92,28 @@ def detect_collision(player, blocking_group, sprites):
 
             index = 0
             for index in range(0, len(sprites)):
+                
+                #offset = list(map(int, vsub(player.rect, sprites[index].rect)))
+                pos_x = player.rect[0]-sprites[index].rect[0]
+                pos_y = player.rect[1]+sprites[index].rect[1]
+                offset = (pos_x, pos_y)
 
-                offset_x = player.rect[0] - sprites[index].rect[0]
-                offset_y = player.rect[1] - sprites[index].rect[1]
-                pos_x = player.rect
-                pos_y = player.rect
+                overlap = player.mask.overlap_area(sprites[index].mask, offset)
 
-                normal = collision_normal(player, sprites[index], pos_x, pos_y)
+                nx = (player.mask.overlap_area(sprites[index].mask,(offset[0]+1,offset[1])) -
+                      player.mask.overlap_area(sprites[index].mask,(offset[0]-1,offset[1])))
+                ny = (player.mask.overlap_area(sprites[index].mask,(offset[0]+1,offset[1])) -
+                      player.mask.overlap_area(sprites[index].mask,(offset[0]-1,offset[1])))
+                #pos_x = player.rect
+                #pos_y = player.rect
+
+                overlap_area = player.mask.overlap_area(sprites[index].mask, (nx, ny))
+                if overlap_area:
+                    print(overlap)
+
+                #normal = collision_normal(player, sprites[index], pos_x, pos_y)
                 
                 
-                    
-
 def player_input(player, collision):
 
     pressed = pygame.key.get_pressed()
