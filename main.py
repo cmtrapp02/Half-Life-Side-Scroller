@@ -2,6 +2,7 @@ import pygame, os.path
 from pygame.locals import *
 
 import constants
+from constants import Playercollision
 
 #player class
 class Player(pygame.sprite.Sprite):
@@ -56,8 +57,6 @@ def vdot(x, y):
 
 def collision_normal(left_mask, right_mask, left_pos, right_pos):
 
-    
-    
     offset = list(map(int, vsub(left_pos, right_pos)))
 
     overlap = left_mask.mask.overlap_area(right_mask.mask, offset)
@@ -77,42 +76,49 @@ def collision_normal(left_mask, right_mask, left_pos, right_pos):
 
     n = [nx, ny]
 
-    test = []
-    dv = test.append(vsub(right_mask.test, left_mask.vel))
-    J = vdot(dv,n)/(2*vdot(n,n))
-
-    print(J)
+    overlap2 = left_mask.mask.overlap_area(right_mask.mask, (n))
+    if overlap2:
+        print(nx)
 
     return n
 
-def detect_collision(player, blocking_group, sprites):
+def detect_collision(player, group, sprites):
 
-    sprite_collide = pygame.sprite.spritecollide(player, blocking_group, False)
-    if sprite_collide:
+    
+    offset = [0, 0, 0, 0]
+    mask = pygame.sprite.collide_mask
+    if pygame.sprite.spritecollide(player, group, False, mask):
 
-            index = 0
-            for index in range(0, len(sprites)):
+        for index in range(0, len(sprites)):
                 
-                #offset = list(map(int, vsub(player.rect, sprites[index].rect)))
-                pos_x = player.rect[0]-sprites[index].rect[0]
-                pos_y = player.rect[1]+sprites[index].rect[1]
-                offset = (pos_x, pos_y)
+            offset_x = player.rect.right - sprites[index].rect.right
+            offset_y = player.rect.bottom - sprites[index].rect.bottom
 
-                overlap = player.mask.overlap_area(sprites[index].mask, offset)
+            overlap_area = player.mask.overlap_area(sprites[index].mask, (offset_x, offset_y))
+        
+            index += 1
+            RIGHT, LEFT, BOTTOM, TOP = 0, 0, 0, 0
+            if overlap_area:
 
-                nx = (player.mask.overlap_area(sprites[index].mask,(offset[0]+1,offset[1])) -
-                      player.mask.overlap_area(sprites[index].mask,(offset[0]-1,offset[1])))
-                ny = (player.mask.overlap_area(sprites[index].mask,(offset[0]+1,offset[1])) -
-                      player.mask.overlap_area(sprites[index].mask,(offset[0]-1,offset[1])))
-                #pos_x = player.rect
-                #pos_y = player.rect
+                print(player.rect)
 
-                overlap_area = player.mask.overlap_area(sprites[index].mask, (nx, ny))
-                if overlap_area:
-                    print(overlap)
+                if offset_x <= -1:
+                    print("Right: " + str(offset_x))
+                    RIGHT = Playercollision.RIGHT
+                if offset_x >= 1:
+                    print("Left: " + str(offset_x))
+                    LEFT = Playercollision.LEFT
+                if offset_y <= -1:
+                    print("Bottom: " + str(offset_y))
+                    BOTTOM = Playercollision.BOTTOM
+                if offset_y >= 1:
+                    print("Top: " + str(offset_y))
+                    TOP = Playercollision.TOP
 
-                #normal = collision_normal(player, sprites[index], pos_x, pos_y)
-                
+                offset = [RIGHT, LEFT, BOTTOM, TOP]
+
+    return offset
+            
                 
 def player_input(player, collision):
 
@@ -122,16 +128,20 @@ def player_input(player, collision):
     pos_y = 0
     if pressed[K_a]:
         direction += -1
-        if collision == 1:
+        if collision[1] == Playercollision.LEFT:
             direction = 0
     if pressed[K_d]:
         direction += 1
-        if collision == -1:
+        if collision[0] == Playercollision.RIGHT:
             direction = 0
     if pressed[K_w]:
         pos_y += -1
+        if collision[3] == Playercollision.TOP:
+            pos_y = 0
     if pressed[K_s]:
         pos_y += 1
+        if collision[2] == Playercollision.BOTTOM:
+            pos_y = 0
 
     player.move(direction, pos_y)
 
@@ -139,7 +149,7 @@ def player_input(player, collision):
 def apply_gravity(pos_y):
 
     #TODO: apply gravity
-    gravity = constants.game.GRAVITY
+    gravity = constants.Game.GRAVITY
     pos_y += gravity
 
  #main function for calling other functions       
@@ -149,8 +159,8 @@ def main(winstyle = 0):
 
     #initialize display variables
     winstyle = 1 # toggle fullscreen
-    surface = pygame.display.set_mode(constants.game.SCREENRECT.size, pygame.SRCALPHA)
-    surface.fill(constants.colors.BLUE)
+    surface = pygame.display.set_mode(constants.Game.SCREENRECT.size, pygame.SRCALPHA)
+    surface.fill(constants.Colors.BLUE)
     pygame.display.flip()
 
     #initialize clock variables
