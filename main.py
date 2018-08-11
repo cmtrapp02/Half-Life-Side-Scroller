@@ -6,7 +6,6 @@ from constants import Playercollision
 
 #player class
 class Player(pygame.sprite.Sprite):
-    
 
     #initialize the player
     def __init__(self, img):
@@ -34,15 +33,16 @@ class Player(pygame.sprite.Sprite):
             self.pos_y += -1
         if pressed[K_s]:
             self.pos_y += 1
-        self.rect.move_ip(self.direction * self.speed, self.pos_y * self.speed)
-        #self.rect.top = 100
+        self.move_ip = self.rect.move_ip(self.direction * self.speed, self.pos_y * self.speed)
         
-    def collide(self, blocking_group, offset):
+    def collide(self, offset):
 
-        mask = pygame.sprite.collide_mask
-        self.collide = pygame.sprite.spritecollide(self, blocking_group, False, mask)
-        if self.direction - offset == 0:
-            self.direction = 0
+        #mask = pygame.sprite.collide_mask
+        #self.collide = pygame.sprite.spritecollide(self, blocking_group, False, mask)
+        #print("player: " + str(self.rect.x))
+        #print(offset + 2    )
+        if self.rect.x == offset or self.rect.x == offset + 1 or self.rect.x == offset + 2 or self.rect.x == offset + 3:
+            print('The locations are equal')
 
 class Rects(pygame.sprite.Sprite):
 
@@ -57,9 +57,8 @@ class Rects(pygame.sprite.Sprite):
         
     
     def update(self, x, y):
-        self.x = 0
-        self.y = 0
-        self.rect.move_ip(self.x, self.y)
+    
+        self.rect.move_ip(x, y)
 
  #main function for calling other functions       
 def main(winstyle = 0):
@@ -94,7 +93,7 @@ def main(winstyle = 0):
     #update the rect locations
     test_rect.update(50, 225)
     test_rect2.update(400, 225)
-    test_rect3.update(200, 100)
+    test_rect3.update(203, 100)
     test_background.update(0, 0)
     test_ground.update(0, 300)
 
@@ -127,11 +126,9 @@ def main(winstyle = 0):
         get_at = player.mask.get_at((0,0))
         set_at = player.mask.set_at((0,0))
         
-        sprites = [test_rect, test_rect2, test_rect3]
-        
         #handle player inputs and collision
         player.move()
-        player.collide(blocking_group, test_rect3.rect.x)
+        player.collide(test_rect3.rect.x)
 
         #draw the scene
         dirty = all.draw(surface)
