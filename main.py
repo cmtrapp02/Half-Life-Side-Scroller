@@ -24,7 +24,11 @@ class Player(pygame.sprite.Sprite):
 
         mask = pygame.sprite.collide_mask
         sprite_collide = pygame.sprite.spritecollide(self, group, False, mask)
-        self.collision_offset = 0
+        self.collision_offset = [0, 0, 0, 0]
+        RIGHT = 0
+        LEFT = 0
+        BOTTOM = 0 
+        TOP = 0
         if sprite_collide:
             for index in range(len(sprites)):
                 sp = sprites[index]
@@ -32,16 +36,16 @@ class Player(pygame.sprite.Sprite):
                 if rect_collide:
                     print(sp)
                     if self.rect.right <= sp.rect.left + 5:
-                        self.collision_offset = Playercollision.RIGHT
-                        #=print('sp.right')
+                        RIGHT = Playercollision.RIGHT
+                        #print('sp.right')
                     if self.rect.left >= sp.rect.right - 5:
-                        self.collision_offset = Playercollision.LEFT
+                        LEFT = Playercollision.LEFT
                         #print('sp.left')
                     if self.rect.bottom <= sp.rect.top + 5:
-                        self.collision_offset = Playercollision.BOTTOM
+                        BOTTOM = Playercollision.BOTTOM
                         #print('sp.bottom')
                     if self.rect.top >= sp.rect.bottom - 5:
-                        self.collision_offset = Playercollision.TOP
+                        TOP = Playercollision.TOP
                         #print('sp.top')
                     for index2 in range(len(sprites)):
                         sp2 = sprites[index2]
@@ -49,18 +53,19 @@ class Player(pygame.sprite.Sprite):
                         if rect_collide2 and index2 != index:
                             print(sp2)
                             if self.rect.right <= sp2.rect.left + 5:
-                                self.collision_offset = Playercollision.RIGHT
+                                RIGHT = Playercollision.RIGHT
                                 #print('sp2.right')
                             if self.rect.left >= sp2.rect.right - 5:
-                                self.collision_offset = Playercollision.LEFT
+                                LEFT = Playercollision.LEFT
                                 #print('sp2.left')
                             if self.rect.bottom <= sp2.rect.top + 5:
-                                self.collision_offset = Playercollision.BOTTOM
+                                BOTTOM = Playercollision.BOTTOM
                                 #print('sp2.bottom')
                             if self.rect.top >= sp2.rect.bottom - 5:
-                                self.collision_offset = Playercollision.TOP
+                                TOP = Playercollision.TOP
                                 #print('sp2.tops')
                             index2 += 1
+                    self.collision_offset = [RIGHT, LEFT, BOTTOM, TOP]
                     index += 1    
                     
     #move the player
@@ -69,26 +74,22 @@ class Player(pygame.sprite.Sprite):
         self.facing = self.direction
         pressed = pygame.key.get_pressed()
         self.pos_y = 0
-        if self.collision_offset == Playercollision.RIGHT:
-            print('right')
-        if self.collision_offset == Playercollision.BOTTOM:
-            print('bottom')
         if pressed[K_a]:
             self.direction += -1
-            if self.collision_offset == Playercollision.LEFT:
+            if self.collision_offset[1] == Playercollision.LEFT:
                 self.direction = 0
         if pressed[K_d]:
             self.direction += 1
-            if self.collision_offset == Playercollision.RIGHT:
+            if self.collision_offset[0] == Playercollision.RIGHT:
                 #print('right')
                 self.direction = 0
         if pressed[K_w]:
             self.pos_y += -1
-            if self.collision_offset == Playercollision.TOP:
+            if self.collision_offset[3] == Playercollision.TOP:
                 self.pos_y = 0
         if pressed[K_s]:
             self.pos_y += 1
-            if self.collision_offset == Playercollision.BOTTOM:
+            if self.collision_offset[2] == Playercollision.BOTTOM:
                 #print('bottom')
                 self.pos_y = 0
         self.move_ip = self.rect.move_ip(self.direction * self.speed, self.pos_y * self.speed)
