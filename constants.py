@@ -16,7 +16,7 @@ class Colors:
 
 class Game:
 
-    GRAVITY = 9.8
+    GRAVITY = 3
     SCREENRECT = Rect(0, 0, 600, 400)
 
 
