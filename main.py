@@ -4,7 +4,7 @@ import sys
 import pygame
 from pygame.locals import *
 
-sys.path.insert(0, 'entities')
+sys.path.insert(0, 'components')
 
 import constants
 from player import Player
