@@ -17,12 +17,17 @@ class Colors:
 class Game:
 
     GRAVITY = 3
+    SPEED = 3
     SCREENRECT = Rect(0, 0, 600, 400)
 
 
 class Playercollision(Enum):
 
-    TOP = 1
-    BOTTOM = -1
-    LEFT = 1
-    RIGHT = -1         
+    TOP = 100
+    BOTTOM = 200
+    LEFT = 300
+    RIGHT = 400       
+    OVERLAP_TOP = 500
+    OVERLAP_BOTTOM = 600
+    OVERLAP_LEFT = 700
+    OVERLAP_RIGHT = 800  

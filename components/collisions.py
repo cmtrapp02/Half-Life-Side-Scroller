@@ -1,7 +1,7 @@
 import pygame
 from pygame import *
 
-class PlayerCollision():
+class Collision():
 
     def __init__(self):
 
