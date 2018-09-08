@@ -19,8 +19,7 @@ def main(winstyle = 0):
     #initialize display variables #TODO look into possibly moving to main loop
     surface = pygame.display.set_mode(constants.Game.SCREENRECT.size, pygame.SRCALPHA)
     surface.fill(constants.Colors.BLUE)
-    pygame.display.flip()
-
+    
     #initialize clock variables
     clock = pygame.time.Clock()
     lvl1 = levels.Level1()
