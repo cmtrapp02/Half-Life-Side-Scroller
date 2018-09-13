@@ -3,6 +3,8 @@ from pygame import *
 
 import constants
 import states
+import utils
+import time
 
 class Player(pygame.sprite.Sprite):
 
@@ -18,10 +20,10 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
         self.facing = 1
-        self.sp = []
+        self.jump = 1
 
     #handle collisions
-    def collide(self, group, sprites, index):
+    def collide(self, group, sprites, index): #TODO: handle error exceptions
         """Detect which sides are colliding"""
 
         self.collision_offset = [0, 0, 0, 0]
@@ -29,33 +31,46 @@ class Player(pygame.sprite.Sprite):
         LEFT = 0
         BOTTOM = 0 
         TOP = 0
-        if states.is_colliding(self, group):
-            for index in range(len(sprites)):
-                self.sp = sprites[index]
-                rect_collide = pygame.sprite.collide_rect(self, self.sp)
-                if rect_collide:
-                    if states.colliding_right(self, self.sp):
-                        RIGHT = constants.Playercollision.RIGHT
-                    elif states.overlaping_right(self, self.sp):
-                        RIGHT = constants.Playercollision.OVERLAP_RIGHT
+        #if states.is_colliding(self, group):
+        for index in range(len(sprites)):
+            self.sp = sprites[index]
+            if states.colliding_right(self, self.sp):
+                RIGHT = constants.Playercollision.RIGHT
+            elif states.overlaping_right(self, self.sp):
+                RIGHT = constants.Playercollision.OVERLAP_RIGHT
 
-                    if states.colliding_left(self, self.sp):
-                        LEFT = constants.Playercollision.LEFT
-                    elif states.overlaping_left(self, self.sp):
-                        LEFT = constants.Playercollision.OVERLAP_LEFT
+            if states.colliding_left(self, self.sp):
+                LEFT = constants.Playercollision.LEFT
+            elif states.overlaping_left(self, self.sp):
+                LEFT = constants.Playercollision.OVERLAP_LEFT
 
-                    if states.colliding_bottom(self, self.sp):
-                        BOTTOM = constants.Playercollision.BOTTOM
-                    elif states.overlaping_bottom(self, self.sp):
-                        BOTTOM = constants.Playercollision.OVERLAP_BOTTOM
+            if states.colliding_bottom(self, self.sp):
+                BOTTOM = constants.Playercollision.BOTTOM
+            elif states.overlaping_bottom(self, self.sp):
+                BOTTOM = constants.Playercollision.OVERLAP_BOTTOM
 
-                    if states.colliding_top(self, self.sp):
-                        TOP = constants.Playercollision.TOP
-                    elif states.overlaping_top(self, self.sp):
-                        TOP = constants.Playercollision.OVERLAP_TOP
+            if states.colliding_top(self, self.sp):
+                TOP = constants.Playercollision.TOP
+            elif states.overlaping_top(self, self.sp):
+                TOP = constants.Playercollision.OVERLAP_TOP
 
-                    self.collision_offset = [RIGHT, LEFT, BOTTOM, TOP]
-                    index += 1    
+            self.collision_offset = [RIGHT, LEFT, BOTTOM, TOP]
+            index += 1    
+
+    def player_jump(self):
+
+        if self.jump <= 10:
+            self.jumping == True
+            self.jump += 1
+            self.pos_y -= self.jump
+
+    #def apply_gravity(self):
+        """ 
+        Applies downward movement on the Y axis if the player
+        is not jumping and/or not grounded
+        """
+
+        #if 
 
     #move the player
     def move(self):
@@ -77,12 +92,22 @@ class Player(pygame.sprite.Sprite):
                 self.direction = 0
             elif self.collision_offset[0] == constants.Playercollision.OVERLAP_RIGHT:
                 self.direction += -1
+               
+        if states.colliding_bottom(self, self.sp):
+            print('grounded')
+        else:
+            print('not grounded')
 
-        if self.collision_offset[2] == constants.Playercollision.BOTTOM and not self.jumping:
-            self.pos_y = 0
-        elif self.collision_offset[2] == constants.Playercollision.OVERLAP_BOTTOM:
-            self.pos_y = -1
-        elif not states.is_jumping(self.pos_y):
-            self.pos_y += constants.Game.GRAVITY
+        if pressed[K_SPACE]:
+            print('Jumping')
+            self.player_jump()
+
+        if self.jumping == False:
+            if self.collision_offset[2] == constants.Playercollision.BOTTOM:
+                self.pos_y = 0
+            elif self.collision_offset[2] == constants.Playercollision.OVERLAP_BOTTOM:
+                self.pos_y = -1
+            else:
+                self.pos_y += constants.Game.GRAVITY
 
         self.move_ip = self.rect.move_ip(self.direction * self.speed, self.pos_y * self.speed) #TODO: change the values of speed for the y axis based upon when the player is jumping or falling
