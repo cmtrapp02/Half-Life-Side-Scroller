@@ -18,6 +18,7 @@ class Game:
 
     GRAVITY = 3
     SPEED = 3
+    JUMP = 0
     SCREENRECT = Rect(0, 0, 600, 400)
 
 
