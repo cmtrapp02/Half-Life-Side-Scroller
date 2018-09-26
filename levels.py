@@ -67,8 +67,9 @@ class Level1():
         s = surface
         c = clock
 
-        self.player.collide(self.blocking_group, self.sprites, self.index)
-        self.player.move()
+        self.player.loop(self.blocking_group, self.sprites, self.index)
+        self.player.delay_jump()
+        self.player.input()
 
         #draw the scene
         dirty = self.all.draw(s)
