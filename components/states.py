@@ -164,11 +164,21 @@ def is_moving(x, y):
 
 
 def is_grounded(sprite1, sprite2):
-    """returns true if the target sprite is on the ground, false if not"""
+    """
+    Uses colliding_bottom to detect if the target sprite is colliding on the bottom. If it is
+    that means it is grounded, if not the sprite is jumping or falling.
+
+    Args:
+        sprite1: the target sprite, this is the sprite that is grounded or not
+        sprite2: the sprite used to judge if the target sprite is colliding with it
+        to see if it is grounded
+
+    Returns:
+        Returns true if the sprite is grounded, false if not
+
+    """
 
     if colliding_bottom(sprite1, sprite2): 
-        return True
-    elif overlaping_bottom(sprite1, sprite2):
         return True
     else:
         return False
@@ -182,8 +192,8 @@ def can_jump(pos):
         return False
 
 
-def is_jumping(jump):
-    """returns true if the target sprite is jumping, false if not"""
+def is_jumping(pos):
+    """tracks the position of the player to see if """
 
     if jump >= 1:
         return True
@@ -194,6 +204,25 @@ def is_jumping(jump):
 def is_falling(pos):
     """
     """
+
+
+def jump_apex(apex, pos):
+    """ 
+    Tracks if the player has reached the apex (highest point) of the jump. Used so the jump
+    and gravity functions know when to be used in the process of jumping
+
+    Args:
+        apex: sets the number for the apex of the jump
+        pos: tracks the positional number, used to test against apex arg
+
+    Returns:
+        Retruns true if pos is equal to apex, false if not
+    """
+
+    if apex == pos:
+        return True
+    else:
+        return False
 
 
 def facing_left():
