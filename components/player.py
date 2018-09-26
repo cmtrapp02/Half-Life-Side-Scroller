@@ -4,7 +4,7 @@ from pygame import *
 import constants
 import states
 import utils
-import time
+import threading
 
 class Player(pygame.sprite.Sprite):
 
@@ -20,10 +20,12 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
         self.facing = 1
-        self.jump = 1
+        self.jumping = False
+        self.can_jump = False
+        self.jump = 0
 
     #handle collisions
-    def collide(self, group, sprites, index): #TODO: handle error exceptions
+    def loop(self, group, sprites, index): #TODO: handle error exceptions
         """Detect which sides are colliding"""
 
         self.collision_offset = [0, 0, 0, 0]
@@ -31,6 +33,8 @@ class Player(pygame.sprite.Sprite):
         LEFT = 0
         BOTTOM = 0 
         TOP = 0
+        self.GROUNDED = False
+
         #if states.is_colliding(self, group):
         for index in range(len(sprites)):
             self.sp = sprites[index]
@@ -54,55 +58,63 @@ class Player(pygame.sprite.Sprite):
             elif states.overlaping_top(self, self.sp):
                 TOP = constants.Playercollision.OVERLAP_TOP
 
+            if states.is_grounded(self, self.sp): #TODO:
+                self.GROUNDED = True
+                
             self.collision_offset = [RIGHT, LEFT, BOTTOM, TOP]
             index += 1    
 
     def player_jump(self):
 
-        if self.jump <= 10:
-            self.jumping == True
-            self.jump += 1
-            self.pos_y -= self.jump
+        self.jumping = True
+        self.pos_y -= constants.Game.JUMP
+        self.move()
+        self.jump += 1
+        print(self.jump)
+        if self.jump == constants.Game.JUMP_APEX:
+            print('reached apex')
+            self.can_jump = False
+            self.jumping = False
+            self.jump = 0
 
-    #def apply_gravity(self):
-        """ 
-        Applies downward movement on the Y axis if the player
-        is not jumping and/or not grounded
-        """
+    def make_true(self):
 
-        #if 
+        self.can_jump = True
+
+    def delay_jump(self):
+        
+        if self.can_jump == False and self.GROUNDED:
+            print('timer')
+            t = threading.Timer(constants.Game.JUMP_TIME_DELAY, self.make_true)
+            t.start()
 
     #move the player
-    def move(self):
+    def input(self):
         self.direction = 0
         self.facing = self.direction
         pressed = pygame.key.get_pressed()
         self.pos_y = 0
-        self.jumping = False
         if pressed[K_a]:
             self.direction += -1
-            if self.collision_offset[1] == constants.Playercollision.LEFT: #TODO for all 4, rethink how state machine can be implemented for this
+            if self.collision_offset[1] == constants.Playercollision.LEFT:
                 self.direction = 0
             elif self.collision_offset[1] == constants.Playercollision.OVERLAP_LEFT:
                 self.direction += 1
 
         if pressed[K_d]:
             self.direction += 1
-            if self.collision_offset[0] == constants.Playercollision.RIGHT: #TODO
+            if self.collision_offset[0] == constants.Playercollision.RIGHT:
                 self.direction = 0
             elif self.collision_offset[0] == constants.Playercollision.OVERLAP_RIGHT:
                 self.direction += -1
-               
-        if states.colliding_bottom(self, self.sp):
-            print('grounded')
-        else:
-            print('not grounded')
 
-        if pressed[K_SPACE]:
-            print('Jumping')
+        if pressed[K_SPACE] and self.can_jump or self.jumping:
+            print("Pressed jump or is jumping")
             self.player_jump()
 
-        if self.jumping == False:
+        print(self.can_jump)
+
+        if self.GROUNDED == False and self.jumping == False:
             if self.collision_offset[2] == constants.Playercollision.BOTTOM:
                 self.pos_y = 0
             elif self.collision_offset[2] == constants.Playercollision.OVERLAP_BOTTOM:
@@ -110,4 +122,8 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.pos_y += constants.Game.GRAVITY
 
-        self.move_ip = self.rect.move_ip(self.direction * self.speed, self.pos_y * self.speed) #TODO: change the values of speed for the y axis based upon when the player is jumping or falling
+        self.move()
+
+    def move(self):
+
+        self.move_ip = self.rect.move_ip(self.direction * self.speed, self.pos_y) #TODO: change the values of speed for the y axis based upon when the player is jumping or falling
