@@ -16,11 +16,12 @@ class Colors:
 
 class Game:
 
-    GRAVITY = 3
+    GRAVITY = 9.8
     SPEED = 3
-    JUMP = 0
+    JUMP = 9.8
+    JUMP_APEX = 10
+    JUMP_TIME_DELAY = .1
     SCREENRECT = Rect(0, 0, 600, 400)
-
 
 class Playercollision(Enum):
 
